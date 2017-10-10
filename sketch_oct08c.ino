@@ -28,7 +28,7 @@
 // last seen by sensor 5 before being lost.
 
 
-#define NUM_SENSORS   5    // number of sensors used
+#define NUM_SENSORS   8    // number of sensors used
 #define TIMEOUT       2500  // waits for 2500 microseconds for sensor outputs to go low
 #define EMITTER_PIN   16     // emitter is controlled by digital pin 2
 #define enableA 11 
@@ -94,8 +94,8 @@ void loop()
   //  qtrrc.read(sensorValues); instead of unsigned int position = qtrrc.readLine(sensorValues);
   unsigned int position = qtrrc.readLine(sensorValues);
  
-  SumLeft =(sensorValues[0] + sensorValues[1] + sensorValues[2]);
-  SumRight = (sensorValues[2] + sensorValues[3] + sensorValues[4]);
+  SumLeft =(sensorValues[0] + sensorValues[1] + sensorValues[2]+sensorValues[3]);
+  SumRight = (sensorValues[3] + sensorValues[4] + sensorValues[5]+sensorValues[6]+sensorValues[7]);
   SumDifference = (SumLeft - SumRight);
   Serial.print(SumDifference); 
   Serial.print('\t');
