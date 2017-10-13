@@ -102,11 +102,11 @@ void loop()
     if(sensorValues[1,6]<=500 && sensorValues[4,3]>=500){
         Forward();
     }
-    else if ((sensorValues[1]>=500&&sensorValues<=500)&&(sensorValues[4,3]>=500)){
-        rightTurn();
-    }
-    else if((sensorValues[1]<=500&&sensorValues>=500)&&(sensorValues[4,3]>=500)){
+    else if((sensorValues[1]<=500&& sensorValues[6]>=500)&&(sensorValues[4,3]>=500)){
         leftTurn();
+    }
+    else if((sensorValues[1]>=500&& sensorValues[6]<=500)&&(sensorValues[4,3]>=500)){
+      rightTurn();
     }
     else{
       motorOff();
