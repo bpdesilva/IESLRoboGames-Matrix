@@ -39,7 +39,7 @@
 #define direction2motorB 13
 
 // sensors 0 through 7 are connected to digital pins 3 through 10, respectively
-QTRSensorsRC qtrrc((unsigned char[]) {14, 15, 16, 17, 18, 19, 20, 21},
+QTRSensorsRC qtrrc((unsigned char[]) {14, 15, 16, 17, 18, 19, 44, 45},
   NUM_SENSORS, TIMEOUT, EMITTER_PIN); 
 unsigned int sensorValues[NUM_SENSORS];
 const unsigned int speed=200;
@@ -58,10 +58,10 @@ void setup()
   //digitalWrite(13, HIGH);    // turn on Arduino's LED to indicate we are in calibration mode
    for (int i = 0; i < 4; i++)  // make the calibration take about 10 seconds
   {
-   // turn();
+  
     qtrrc.calibrate();       // reads all sensors 10 times at 2500 us per read (i.e. ~25 ms per call)
   }
-delay(200); 
+  delay(200); 
  // digitalWrite(13, LOW);     // turn off Arduino's LED to indicate we are through with calibration
 
   // print the calibration minimum values measured when emitters were on
@@ -110,8 +110,8 @@ void loop()
 
   }
 
-
-  void Forward(){
+//Move bot forward 
+void Forward(){
     digitalWrite(direction1motorA, HIGH);
     digitalWrite(direction2motorA, LOW);
     digitalWrite(direction1motorB, HIGH);
@@ -121,6 +121,7 @@ void loop()
     //delay(3000);
 }
 
+//Move bot backward 
 void Backward(){
     digitalWrite(direction1motorA, LOW);
     digitalWrite(direction2motorA, HIGH);
@@ -131,6 +132,7 @@ void Backward(){
     //delay(3000);
 }
 
+//Turn off the motor
 void motorOff(){
     // now turn off motors
   digitalWrite(direction1motorA, LOW);
@@ -141,6 +143,7 @@ void motorOff(){
   analogWrite(enableB, 0);
 }
 
+//90 degree turn based on array response
 void leftTurn(){
   digitalWrite(direction1motorA, LOW);
   digitalWrite(direction2motorA, LOW);  
@@ -150,6 +153,7 @@ void leftTurn(){
   analogWrite(enableB, speed);
 }
 
+//90 degree turn based on array response
 void rightTurn(){
   digitalWrite(direction1motorA, HIGH);
   digitalWrite(direction2motorA, LOW);  
@@ -159,6 +163,7 @@ void rightTurn(){
   analogWrite(enableB, 0);
 }
 
+//turn based on array response
 void spotLeftTurn(){
   digitalWrite(direction1motorA, LOW);
   digitalWrite(direction2motorA, HIGH);  
@@ -168,6 +173,7 @@ void spotLeftTurn(){
   analogWrite(enableB, speed);
 }
 
+//turn based on array response
 void spotRightTurn(){
   digitalWrite(direction1motorA, HIGH);
   digitalWrite(direction2motorA, LOW);  
