@@ -42,7 +42,21 @@
 QTRSensorsRC qtrrc((unsigned char[]) {14, 15, 16, 17, 18, 19, 44, 45},
   NUM_SENSORS, TIMEOUT, EMITTER_PIN); 
 unsigned int sensorValues[NUM_SENSORS];
+<<<<<<< HEAD
+const unsigned int speed=170;
+
+
+
+int SumLeft = 0;
+int SumRight = 0;
+int SumDifference = 0;
+int Last = 0;
+int BG;
+unsigned int qtr[NUM_SENSORS];
+
+=======
 const unsigned int speed=200;
+>>>>>>> b10fa968628df44a84bb4d6c6e059508fef1e49d
 
 void setup()
 {
@@ -52,6 +66,19 @@ void setup()
    pinMode(direction1motorA, OUTPUT);
    pinMode(direction2motorA, OUTPUT);
    pinMode(direction1motorB, OUTPUT);
+<<<<<<< HEAD
+   pinMode(direction2motorB, OUTPUT);
+
+
+  //pinMode(13, OUTPUT);
+  //digitalWrite(13, HIGH);    // turn on Arduino's LED to indicate we are in calibration mode
+   for (int i = 0; i < 100; i++)  // make the calibration take about 10 seconds
+  {
+   // turn();
+    qtrrc.calibrate();       // reads all sensors 10 times at 2500 us per read (i.e. ~25 ms per call)
+  }
+delay(200); 
+=======
    pinMode(direction2motorB, OUTPUT); 
  
   //pinMode(13, OUTPUT);
@@ -62,6 +89,7 @@ void setup()
     qtrrc.calibrate();       // reads all sensors 10 times at 2500 us per read (i.e. ~25 ms per call)
   }
   delay(200); 
+>>>>>>> b10fa968628df44a84bb4d6c6e059508fef1e49d
  // digitalWrite(13, LOW);     // turn off Arduino's LED to indicate we are through with calibration
 
   // print the calibration minimum values measured when emitters were on
@@ -90,14 +118,139 @@ void loop()
   // To get raw sensor values, call:
 
   unsigned int position = qtrrc.readLine(sensorValues);
+<<<<<<< HEAD
+  for(int j=0;j<NUM_SENSORS;j++){
+    if(sensorValues[j]>500){
+      qtr[7-j]=1;
+    }
+    else {
+      qtr[7-j]=0;
+    }
+  //Serial.print(qtr[j]);
+    //Serial.print('\t');
+  }
+  //Serial.println();
+  
+  if((qtr[0]==0 && qtr[7]==0) && (qtr[3]==1 && qtr[4]==1)){
+    BG=0;
+    }
+  if((qtr[3]==0 && qtr[4]==0) && (qtr[0]==1 && qtr[7]==1)){
+    BG=1;
+    }
+  
+
+  SumLeft = (qtr[1] + qtr[2] + qtr[3] );
+  SumRight = (qtr[4] + qtr[5] + qtr[6] );
+  SumDifference = (SumLeft - SumRight);
+  Serial.print(SumDifference);
+ Serial.println();
+
+ /*
+  if(BG==1)
+  {
+    
+      if(abs(SumDifference) < 112){
+      Forward();
+      }
+
+      else if(SumDifference > 112){
+      rightTurn();
+      }
+      
+      else if(SumDifference < -112){
+      leftTurn;
+      }
+
+  }
+*/
+  if(BG==0)
+  {
+    
+      if(abs(SumDifference) < 1){
+      Forward();
+      }
+
+      else if(SumDifference > 0){
+      leftTurn;
+      }
+      
+      else if(SumDifference < 0){
+      rightTurn;
+      }
+
+  }
+
+  
+//commented
+/*
+
+    if(abs(SumDifference) < 700){
+    Forward();
+  }
+  if((SumDifference > 700) && (SumDifference < 1000)){
+    leftTurn();
+//    Serial.print("SlightRight");
+    Last = 1;
+//    Serial.print('\t');
+//    Serial.print("Last = Right");
+  }
+  if(SumDifference >= 1000){
+    leftTurn();
+//    Serial.print("Hard Right");
+    Last = 1;
+//    Serial.print('\t');
+//    Serial.print("Last = Right");
+  }
+  
+  if((SumDifference < -700) && (SumDifference > -1000)){
+    rightTurn();
+//    Serial.print("SlightLeft");
+    Last = 2;
+//    Serial.print('\t');
+//    Serial.print("Last = Left");
+  }
+  if((SumDifference) <= -1000){
+    rightTurn();
+//    Serial.print("Hard Left");
+    Last = 2;
+//    Serial.print('\t');
+//    Serial.print("Last = Left");
+  }
+  if ((SumLeft < 100) && (SumRight < 100)){
+    if (Last == 1){
+      leftTurn();
+    }
+    if (Last == 2){
+     rightTurn();
+    }
+    
+  }
+   */ 
+
+   //end comment
+  // print the sensor values as numbers from 0 to 1000, where 0 means maximum reflectance and
+  // 1000 means minimum reflectance, followed by the line position
+
+  /*
+=======
 
    
   // print the sensor values as numbers from 0 to 1000, where 0 means maximum reflectance and
   // 1000 means minimum reflectance, followed by the line position
+>>>>>>> b10fa968628df44a84bb4d6c6e059508fef1e49d
   for (unsigned char i = 0; i < NUM_SENSORS; i++)
   {
     Serial.print(sensorValues[i]);
     Serial.print('\t');
+<<<<<<< HEAD
+   }
+     Serial.println(); // uncomment this line if you are using raw values
+*/
+  }
+
+
+  void Forward(){
+=======
 
     if(sensorValues[1,6]<=500 && sensorValues[4,3]>=500){
         Forward();
@@ -118,6 +271,7 @@ void loop()
 
 //Move bot forward 
 void Forward(){
+>>>>>>> b10fa968628df44a84bb4d6c6e059508fef1e49d
     digitalWrite(direction1motorA, HIGH);
     digitalWrite(direction2motorA, LOW);
     digitalWrite(direction1motorB, HIGH);
@@ -127,7 +281,10 @@ void Forward(){
     //delay(3000);
 }
 
+<<<<<<< HEAD
+=======
 //Move bot backward 
+>>>>>>> b10fa968628df44a84bb4d6c6e059508fef1e49d
 void Backward(){
     digitalWrite(direction1motorA, LOW);
     digitalWrite(direction2motorA, HIGH);
@@ -138,7 +295,10 @@ void Backward(){
     //delay(3000);
 }
 
+<<<<<<< HEAD
+=======
 //Turn off the motor
+>>>>>>> b10fa968628df44a84bb4d6c6e059508fef1e49d
 void motorOff(){
     // now turn off motors
   digitalWrite(direction1motorA, LOW);
@@ -149,7 +309,10 @@ void motorOff(){
   analogWrite(enableB, 0);
 }
 
+<<<<<<< HEAD
+=======
 //90 degree turn based on array response
+>>>>>>> b10fa968628df44a84bb4d6c6e059508fef1e49d
 void leftTurn(){
   digitalWrite(direction1motorA, LOW);
   digitalWrite(direction2motorA, LOW);  
@@ -159,7 +322,10 @@ void leftTurn(){
   analogWrite(enableB, speed);
 }
 
+<<<<<<< HEAD
+=======
 //90 degree turn based on array response
+>>>>>>> b10fa968628df44a84bb4d6c6e059508fef1e49d
 void rightTurn(){
   digitalWrite(direction1motorA, HIGH);
   digitalWrite(direction2motorA, LOW);  
@@ -169,7 +335,10 @@ void rightTurn(){
   analogWrite(enableB, 0);
 }
 
+<<<<<<< HEAD
+=======
 //turn based on array response
+>>>>>>> b10fa968628df44a84bb4d6c6e059508fef1e49d
 void spotLeftTurn(){
   digitalWrite(direction1motorA, LOW);
   digitalWrite(direction2motorA, HIGH);  
@@ -179,7 +348,10 @@ void spotLeftTurn(){
   analogWrite(enableB, speed);
 }
 
+<<<<<<< HEAD
+=======
 //turn based on array response
+>>>>>>> b10fa968628df44a84bb4d6c6e059508fef1e49d
 void spotRightTurn(){
   digitalWrite(direction1motorA, HIGH);
   digitalWrite(direction2motorA, LOW);  
@@ -187,4 +359,8 @@ void spotRightTurn(){
   digitalWrite(direction2motorB, HIGH);
   analogWrite(enableA, speed);
   analogWrite(enableB, speed);
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> b10fa968628df44a84bb4d6c6e059508fef1e49d
