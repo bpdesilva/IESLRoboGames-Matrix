@@ -37,16 +37,25 @@
 #define direction2motorA 4
 #define direction1motorB 12
 #define direction2motorB 13
+//#define LEDPIN 38 - not in use test purpose of state 1 or 0
+#define armMotorA 31
+#define armMotorB 32
 
 // sensors 0 through 7 are connected to digital pins 3 through 10, respectively
-QTRSensorsRC qtrrc((unsigned char[]) {14, 15, 16, 17, 18, 19, 20, 21},
+QTRSensorsRC qtrrc((unsigned char[]) {14, 15, 16, 17, 18, 19, 44, 45},
   NUM_SENSORS, TIMEOUT, EMITTER_PIN); 
 unsigned int sensorValues[NUM_SENSORS];
+const unsigned int speed=170;
+
+
 
 int SumLeft = 0;
 int SumRight = 0;
 int SumDifference = 0;
 int Last = 0;
+unsigned int BG;
+unsigned int qtr[NUM_SENSORS];
+
 
 void setup()
 {
@@ -56,13 +65,16 @@ void setup()
    pinMode(direction1motorA, OUTPUT);
    pinMode(direction2motorA, OUTPUT);
    pinMode(direction1motorB, OUTPUT);
-   pinMode(direction2motorB, OUTPUT); 
- 
+   pinMode(direction2motorB, OUTPUT);
+   //pinMode(LEDPIN, OUTPUT);
+   pinMode(direction1armMotorA, OUTPUT);
+   pinMode(direction2armMotorB, OUTPUT);
+
   //pinMode(13, OUTPUT);
   //digitalWrite(13, HIGH);    // turn on Arduino's LED to indicate we are in calibration mode
-   for (int i = 0; i < 4; i++)  // make the calibration take about 10 seconds
+   for (int i = 0; i < 100; i++)  // make the calibration take about 10 seconds
   {
-    turn();
+   // turn();
     qtrrc.calibrate();       // reads all sensors 10 times at 2500 us per read (i.e. ~25 ms per call)
   }
 delay(200); 
@@ -88,164 +100,146 @@ delay(200);
   delay(1000);
 }
 
-
 void loop()
 {
   // read calibrated sensor values and obtain a measure of the line position from 0 to 5000
   // To get raw sensor values, call:
-  //  qtrrc.read(sensorValues); instead of unsigned int position = qtrrc.readLine(sensorValues);
+
   unsigned int position = qtrrc.readLine(sensorValues);
- 
-  SumLeft =(sensorValues[0] + sensorValues[1] + sensorValues[2] + sensorValues[3]);
-  SumRight = (sensorValues[4] + sensorValues[5] + sensorValues[6] + sensorValues[7]);
+  for(int j=0;j<NUM_SENSORS;j++){
+    if(sensorValues[j]>500){
+      qtr[7-j]=1;
+    }
+    else {
+      qtr[7-j]=0;
+    }
+  //Serial.print(qtr[j]);
+    //Serial.print('\t');
+  }
+  //Serial.println();
+  
+  if((qtr[0]==0 && qtr[7]==0) && (qtr[3]==1 && qtr[4]==1)){
+    BG=0;
+    }
+  if((qtr[3]==0 && qtr[4]==0) && (qtr[0]==1 && qtr[7]==1)){
+    BG=1;
+    }
+  
+
+  SumLeft = (qtr[1] + qtr[2] + qtr[3] );
+  SumRight = (qtr[4] + qtr[5] + qtr[6] );
   SumDifference = (SumLeft - SumRight);
-  Serial.print(SumDifference); 
-  Serial.print('\t');
-  Serial.print(SumLeft);
-  Serial.print('\t');
-  Serial.print(SumRight);
-  Serial.print('\t');
-  
-  if(abs(SumDifference) < 700){
-    Forward();
-    Serial.print("Forward");
-  
-  }
-  if((SumDifference > 700) && (SumDifference < 1000)){
-    SlightRight();
-    Serial.print("SlightRight");
-    Last = 1;
-    Serial.print('\t');
-    Serial.print("Last = Right");
-  }
-  if(SumDifference >= 1000){
-    HardRight();
-    Serial.print("Hard Right");
-    Last = 1;
-    Serial.print('\t');
-    Serial.print("Last = Right");
-  }
-  
-  if((SumDifference < -700) && (SumDifference > -1000)){
-    SlightLeft();
-    Serial.print("SlightLeft");
-    Last = 2;
-    Serial.print('\t');
-    Serial.print("Last = Left");
-  }
-  if((SumDifference) <= -1000){
-    HardLeft();
-    Serial.print("Hard Left");
-    Last = 2;
-    Serial.print('\t');
-    Serial.print("Last = Left");
-  }
-  if ((SumLeft < 100) && (SumRight < 100)){
-    if (Last == 1){
-      HardRight();
-    }
-    if (Last == 2){
-      HardLeft();
-    }
-    
-  }
-
-
-
-  
-  // print the sensor values as numbers from 0 to 1000, where 0 means maximum reflectance and
-  // 1000 means minimum reflectance, followed by the line position
-  for (unsigned char i = 0; i < NUM_SENSORS; i++)
-  {
-    Serial.print(sensorValues[i]);
-    Serial.print('\t');
-  }
-  Serial.println(); // uncomment this line if you are using raw values
- // Serial.println(position); // comment this line out if you are using raw values
+  Serial.print(SumDifference);
+  Serial.println();
 
  
- Serial.print(SumDifference); 
+  if(BG==1)
+  {
+      
+      if(abs(SumDifference) < 0){
+      Forward();
+      }
+
+      else if(SumDifference > 0){
+      rightTurn();
+      }
+      
+      else if(SumDifference < 0){
+      leftTurn();
+      }
+
+  }
+
+  else if(BG==0)
+  {
+    
+      if(abs(SumDifference) < 1){
+      Forward();
+      }
+
+      else if(SumDifference > 1){
+      leftTurn();
+      }
+      
+      else if(SumDifference < 1){
+      rightTurn();
+      }
+
+  }
+}
   
-  delay(10);
-}
 
-void Forward(){
+
+  void Forward(){
     digitalWrite(direction1motorA, HIGH);
     digitalWrite(direction2motorA, LOW);
     digitalWrite(direction1motorB, HIGH);
     digitalWrite(direction2motorB, LOW);
-    analogWrite(enableA,200);
-    analogWrite(enableB,200);
+    analogWrite(enableA,speed);
+    analogWrite(enableB,speed);
     //delay(3000);
 }
 
-void SlightRight(){
-    digitalWrite(direction1motorA, HIGH);
-    digitalWrite(direction2motorA, LOW);
-    digitalWrite(direction1motorB, HIGH);
-    digitalWrite(direction2motorB, LOW);
-    analogWrite(enableA,150);
-    analogWrite(enableB,200);
+void Backward(){
+    digitalWrite(direction1motorA, LOW);
+    digitalWrite(direction2motorA, HIGH);
+    digitalWrite(direction1motorB, LOW);
+    digitalWrite(direction2motorB, HIGH);
+    analogWrite(enableA,speed);
+    analogWrite(enableB,speed);
     //delay(3000);
 }
 
- void HardRight(){
-    digitalWrite(direction1motorA, HIGH);
-    digitalWrite(direction2motorA, LOW);
-    digitalWrite(direction1motorB, HIGH);
-    digitalWrite(direction2motorB, LOW);
-    analogWrite(enableA,0);
-    analogWrite(enableB,200);
-    //delay(3000);
- }
-
-void SlightLeft(){
-    digitalWrite(direction1motorA, HIGH);
-    digitalWrite(direction2motorA, LOW);
-    digitalWrite(direction1motorB, HIGH);
-    digitalWrite(direction2motorB, LOW);
-    analogWrite(enableA,200);
-    analogWrite(enableB,150);
-    //delay(3000);
-}
-void HardLeft(){
-    digitalWrite(direction1motorA, HIGH);
-    digitalWrite(direction2motorA, LOW);
-    digitalWrite(direction1motorB, HIGH);
-    digitalWrite(direction2motorB, LOW);
-    analogWrite(enableA,200);
-    analogWrite(enableB,0);
-    //delay(3000);
-}
-void Stop(){
-    digitalWrite(direction1motorA, HIGH);
-    digitalWrite(direction2motorA, LOW);
-    digitalWrite(direction1motorB, HIGH);
-    digitalWrite(direction2motorB, LOW);
-    analogWrite(enableA,0);
-    analogWrite(enableB,0);
-    //delay(3000);
+void motorOff(){
+    // now turn off motors
+  digitalWrite(direction1motorA, LOW);
+  digitalWrite(direction2motorA, LOW);  
+  digitalWrite(direction1motorB, LOW);
+  digitalWrite(direction2motorB, LOW);
+  analogWrite(enableA, 0);
+  analogWrite(enableB, 0);
 }
 
-
-
-  
-void turn(){
-digitalWrite(direction1motorA, HIGH);
-digitalWrite(direction2motorA, LOW);
-analogWrite(enableA,100);
-digitalWrite(direction1motorB, LOW);
-digitalWrite(direction2motorB, HIGH);
-analogWrite(enableB,100);
-delay(1000);
-
-digitalWrite(direction1motorA, LOW);
-digitalWrite(direction2motorA, HIGH);
-analogWrite(enableA,100);
-digitalWrite(direction1motorB, HIGH);
-digitalWrite(direction2motorB, LOW);
-analogWrite(enableB,100);
-delay(1000);
+void leftTurn(){
+  digitalWrite(direction1motorA, LOW);
+  digitalWrite(direction2motorA, LOW);  
+  digitalWrite(direction1motorB, HIGH);
+  digitalWrite(direction2motorB, LOW);
+  analogWrite(enableA, 0);
+  analogWrite(enableB, speed);
 }
 
+void rightTurn(){
+  digitalWrite(direction1motorA, HIGH);
+  digitalWrite(direction2motorA, LOW);  
+  digitalWrite(direction1motorB, LOW);
+  digitalWrite(direction2motorB, LOW);
+  analogWrite(enableA, speed);
+  analogWrite(enableB, 0);
+}
 
+void spotLeftTurn(){
+  digitalWrite(direction1motorA, LOW);
+  digitalWrite(direction2motorA, HIGH);  
+  digitalWrite(direction1motorB, HIGH);
+  digitalWrite(direction2motorB, LOW);
+  analogWrite(enableA, speed);
+  analogWrite(enableB, speed);
+}
+
+void spotRightTurn(){
+  digitalWrite(direction1motorA, HIGH);
+  digitalWrite(direction2motorA, LOW);  
+  digitalWrite(direction1motorB, LOW);
+  digitalWrite(direction2motorB, HIGH);
+  analogWrite(enableA, speed);
+  analogWrite(enableB, speed);
+}
+
+void armdown(){
+  int armspeed;//define speed
+  digitalWrite(direction1armMotorA, HIGH);
+  digitalWrite(direction2armMotorB, HIGH);
+  analogWrite (enableA,armspeed);
+  analogWrite (enableB, armspeed);
+}
